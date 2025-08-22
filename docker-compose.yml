@@ -1,0 +1,73 @@
+services:
+  app:
+    build: .
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    ports:
+      - "8001:8000"
+    networks:
+      - laravel
+    depends_on:
+      - mysql
+    environment:
+      - APP_NAME=Laravel API
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8001
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=iprayal_test
+      - DB_USERNAME=laravel
+      - DB_PASSWORD=password
+      - CACHE_STORE=database
+      - SESSION_DRIVER=database
+      - QUEUE_CONNECTION=database
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - MAIL_USERNAME=null
+      - MAIL_PASSWORD=null
+      - MAIL_ENCRYPTION=null
+      - MAIL_FROM_ADDRESS=noreply@localhost
+      - MAIL_FROM_NAME=Laravel API
+      - QUEUE_CONNECTION=database
+      - PROXYCHECK_API_KEY=${PROXYCHECK_API_KEY:-}
+      - PROXYCHECK_ENABLED=${PROXYCHECK_ENABLED:-true}
+      - PROXYCHECK_BLOCK_VPN=${PROXYCHECK_BLOCK_VPN:-true}
+
+  mysql:
+    image: mysql:8.0
+    container_name: laravel_mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: iprayal_test
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - laravel
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: laravel_mailhog
+    restart: unless-stopped
+    ports:
+      - "8026:8025"
+      - "1026:1025"
+    networks:
+      - laravel
+
+volumes:
+  mysql_data:
+
+networks:
+  laravel:
+    driver: bridge
